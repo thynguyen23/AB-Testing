@@ -1,97 +1,59 @@
-# 📊 Tóm Tắt Dự Án A/B Testing: Ảnh Hưởng của Bộ Lọc Thời Gian Cam Kết
 
-## 🎯 Mục Tiêu
-Đánh giá xem việc thêm một câu hỏi về **cam kết thời gian học tập** trước khi cho dùng thử miễn phí có ảnh hưởng gì đến:
+# A/B Testing: Phân tích tác động của việc lọc học viên theo cam kết thời gian học
 
-- **Gross Conversion**: Tỷ lệ từ click sang đăng ký học thử
-- **Net Conversion**: Tỷ lệ từ click sang trả phí sau 14 ngày dùng thử
+## 1. Mục tiêu thí nghiệm
+Mục tiêu của thí nghiệm là kiểm tra xem việc hỏi học viên về thời gian họ có thể dành cho khóa học trước khi ghi danh có giúp:
+- Cải thiện trải nghiệm học tập của học viên.
+- Giảm tỷ lệ học viên bỏ học sớm (huỷ trước 14 ngày).
+- Tối ưu hóa tài nguyên hỗ trợ (coaching).
 
-Mục tiêu là **tăng tỷ lệ học viên trả phí** mà **giảm số người bỏ sớm**.
+## 2. Thiết kế thí nghiệm
+- **Nhóm kiểm soát:** Học viên được ghi danh vào dùng thử miễn phí như bình thường.
+- **Nhóm thí nghiệm:** Sau khi nhấn “Dùng thử miễn phí”, học viên được hỏi: "Bạn có thể dành bao nhiêu thời gian mỗi tuần cho khoá học?".
+  - Nếu chọn từ 5h trở lên: tiếp tục ghi danh.
+  - Nếu chọn dưới 5h: hiển thị cảnh báo khuyến nghị sử dụng phiên bản miễn phí (không có hỗ trợ và chứng chỉ).
+- **Đơn vị phân nhóm:** Cookie (trước khi ghi danh), user-id (sau ghi danh).
+- **Thời gian thí nghiệm:** 23 ngày với dữ liệu Enrollment, 39 ngày với dữ liệu Pageview và Click.
 
----
+## 3. Các chỉ số chính
 
-## ⚙️ Thiết Lập Thử Nghiệm
+### Invariant Metrics (dự kiến không thay đổi giữa 2 nhóm)
+- Số lượng cookie (truy cập vào trang).
+- Số lượt nhấn “Dùng thử miễn phí”.
+- Click-Through Probability: Click / Pageviews.
 
-- **Đơn vị phân nhóm (Unit of Diversion):** Cookie (mỗi người dùng theo ID cookie)
-- **Đơn vị phân tích (Unit of Analysis):** Clicks
-- **Thời gian chạy thử nghiệm:**
-  - Pageviews/Clicks: 39 ngày
-  - Enrollments/Payments: 23 ngày (dữ liệu bị giới hạn)
-- **Giả thuyết:**
-  - H₀ (Gross): Không có sự khác biệt đáng kể giữa 2 nhóm
-  - H₀ (Net): Không có sự khác biệt đáng kể giữa 2 nhóm
+Tất cả đều “vượt qua” kiểm định thống kê và không có sai lệch giữa hai nhóm.
 
----
+### Evaluation Metrics (cần theo dõi thay đổi):
+- **Gross Conversion (GC):** Enrollments / Clicks. Mức chấp nhận thay đổi: 1%.
+- **Retention:** Payments / Enrollments. Mức chấp nhận thay đổi: 1%.
+- **Net Conversion (NC):** Payments / Clicks. Mức chấp nhận thay đổi: 0.75%.
 
-## ✅ Kiểm Tra Tính Hợp Lý (Sanity Checks)
+## 4. Kết quả
 
-| Chỉ số                                  | Giá trị kỳ vọng | Quan sát được | CI thấp | CI cao  | Kết luận |
-|-----------------------------------------|-----------------|---------------|---------|---------|----------|
-| Số lượng Cookies                        | 0.5000          | 0.5006        | 0.4988  | 0.5012  | Pass     |
-| Click vào “Start Free Trial”           | 0.5000          | 0.5005        | 0.4959  | 0.5042  | Pass     |
-| Tỷ lệ Click-through (CTP)              | 0.0821          | 0.0822        | 0.0812  | 0.0830  | Pass     |
+| Metric            | Mức chênh lệch quan sát | Khoảng tin cậy (95%)        | Kết luận                                 |
+|-------------------|--------------------------|------------------------------|-------------------------------------------|
+| Gross Conversion  | -2.06%                   | [-2.92%, -1.20%]             | Có ý nghĩa thống kê & thực tiễn          |
+| Net Conversion    | -0.49%                   | [-1.16%, 0.19%]              | Không có ý nghĩa thống kê                |
 
-✅ Các nhóm được phân chia đồng đều → dữ liệu có thể dùng cho phân tích.
+## 5. Kết luận & Khuyến nghị
+Mặc dù tỷ lệ ghi danh có giảm đáng kể, nhưng không có bằng chứng cho thấy chất lượng học viên (tỷ lệ trả phí sau 14 ngày) tăng lên. Do đó:
+- **Không nên triển khai chính thức thay đổi này.**
+- Cần thử nghiệm thêm các hình thức lọc học viên khác.
 
----
+## 6. Đề xuất thử nghiệm tiếp theo
 
-## 📈 Phân Tích Chỉ Số Đánh Giá (Evaluation Metrics)
+### 6.1 Can thiệp trước ghi danh (Pre-enrollment)
+- Bổ sung thêm danh sách kỹ năng nền tảng bên cạnh câu hỏi về thời gian.
+- Nếu học viên đáp ứng cả thời gian và kỹ năng → được ghi danh dùng thử.
+- Nếu không → khuyến khích học miễn phí.
+- Mục tiêu: giảm Gross Conversion nhưng tăng Net Conversion.
 
-### Gross Conversion (Click → Đăng ký học thử)
-- **Khác biệt quan sát:** -0.0205
-- **Khoảng tin cậy 95%:** [-0.0291, -0.0120]
-- **Ngưỡng dmin:** 0.01
-- ✅ **Có ý nghĩa thống kê và thực tiễn**
+### 6.2 Can thiệp sau ghi danh (Post-enrollment)
+- Gợi ý học viên tham gia nhóm học (team) ngay sau khi ghi danh.
+- Thiết lập nhóm thí nghiệm và nhóm kiểm soát.
+- Chỉ số đánh giá: Retention (tỷ lệ tiếp tục học sau 14 ngày).
+- Mục tiêu: tăng Retention mà không cần tăng hỗ trợ từ huấn luyện viên.
 
-### Net Conversion (Click → Trả phí)
-- **Khác biệt quan sát:** -0.0048
-- **Khoảng tin cậy 95%:** [-0.0116, 0.0019]
-- **Ngưỡng dmin:** 0.0075
-- ❌ **Không có ý nghĩa thống kê và thực tiễn**
-
----
-
-## 🧪 Kiểm Định Dấu Hiệu (Sign Test)
-
-| Chỉ số           | p-value | Có ý nghĩa thống kê ở α = 0.05? |
-|------------------|---------|---------------------------------|
-| Gross Conversion | 0.0026  | ✅ Có                            |
-| Net Conversion   | 0.6776  | ❌ Không                         |
-
-✅ Gross Conversion giảm đồng đều theo ngày  
-❌ Net Conversion không có xu hướng rõ ràng
-
----
-
-## 📌 Kết Luận Chính
-
-> “Bản cập nhật gây giảm tỷ lệ đăng ký học thử (Gross Conversion), **nhưng không tăng tỷ lệ trả phí (Net Conversion)** → Không đạt mục tiêu kinh doanh.”
-
----
-
-## 🚫 Khuyến Nghị
-
-**KHÔNG TRIỂN KHAI THAY ĐỔI.**
-- Mặc dù có tác động rõ ràng đến Gross Conversion, thay đổi không giúp tăng số người trả phí.
-- Có nguy cơ làm giảm số học viên đăng ký → không có lợi ích thực tiễn.
-
----
-
-## 🔁 Đề Xuất Thí Nghiệm Tiếp Theo
-
-### 1. Can Thiệp Trước Khi Ghi Danh (Pre-enrollment Intervention)
-- 👉 Thêm checklist các kỹ năng nền tảng vào pop-up hỏi thời gian.
-- ✅ Chỉ học viên đạt đủ thời gian & kỹ năng mới được chuyển đến trang ghi danh.
-- Kết quả mong đợi: Gross Conversion giảm nhưng Net Conversion tăng.
-
-### 2. Can Thiệp Sau Khi Ghi Danh (Post-enrollment Intervention)
-- 👉 Tạo nhóm học tập (study team) để hỗ trợ học viên sau khi đăng ký.
-- **Thiết kế thử nghiệm:**
-  - **Đơn vị phân nhóm:** `user-id`
-  - **Chỉ số đánh giá:** Tỷ lệ Retention sau 14 ngày.
-- ✅ Nếu Retention tăng có ý nghĩa thống kê và không tiêu tốn nhiều tài nguyên → triển khai.
-
----
-
-
-
+## 7. Tổng kết
+Thí nghiệm đã được thiết kế bài bản, sử dụng các phương pháp kiểm định thống kê, kiểm tra phương sai và Sign Test. Tuy nhiên, mục tiêu cuối cùng - **tăng tỷ lệ học viên chất lượng** - chưa đạt được. Vì vậy cần tiếp tục thử nghiệm các giải pháp thay thế như bổ sung điều kiện đầu vào hoặc hỗ trợ sau ghi danh một cách tối ưu hơn.
