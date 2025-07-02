@@ -28,13 +28,82 @@ Tất cả đều “vượt qua” kiểm định thống kê và không có sa
 - **Gross Conversion (GC):** Enrollments / Clicks. Mức chấp nhận thay đổi: 1%.
 - **Retention:** Payments / Enrollments. Mức chấp nhận thay đổi: 1%.
 - **Net Conversion (NC):** Payments / Clicks. Mức chấp nhận thay đổi: 0.75%.
+- ### Số Lượng Mẫu và Mức Độ Power
+Số lượng pageviews cần thiết cho từng chỉ số được tính toán với **giá trị alpha = 0.05** và **beta = 0.2** (tương ứng với power = 80%).
 
+---
+
+### Số Lượng Pageviews Cần Thiết Cho Mỗi Chỉ Số Để Đạt Power Mong Muốn
+
+#### **1. Gross Conversion**
+- **Tỷ lệ chuyển đổi gốc (Baseline Conversion):** 20.625%  
+- **Mức ảnh hưởng nhỏ nhất có thể phát hiện (Minimum Detectable Effect):** 1%  
+- **Alpha:** 5%  
+- **Beta:** 20%  
+- **Power:** 80%  
+- **Kích thước mẫu:** 25,835 lượt ghi danh / nhóm  
+- **Số nhóm:** 2 (Thử nghiệm và Đối chứng)  
+- **Tổng số mẫu:** 51,670 lượt ghi danh  
+- **Số lần click / pageview:** 3,200 / 40,000 = 0.08  
+- **Số pageviews cần thiết:** 645,875
+
+---
+
+#### **2. Retention**
+- **Tỷ lệ giữ chân gốc (Baseline Conversion):** 53%  
+- **Minimum Detectable Effect:** 1%  
+- **Alpha:** 5%  
+- **Beta:** 20%  
+- **Power:** 80%  
+- **Kích thước mẫu:** 39,155 lượt ghi danh / nhóm  
+- **Số nhóm:** 2 (Thử nghiệm và Đối chứng)  
+- **Tổng số mẫu:** 78,230 lượt ghi danh  
+- **Số lượt ghi danh / pageview:** 660 / 40,000 = 0.0165  
+- **Số pageviews cần thiết:** 78,230 / 0.0165 = 4,741,212
+
+---
+
+#### **3. Net Conversion**
+- **Tỷ lệ chuyển đổi gốc:** 10.9313%  
+- **Minimum Detectable Effect:** 0.75%  
+- **Alpha:** 5%  
+- **Beta:** 20%  
+- **Power:** 80%  
+- **Kích thước mẫu:** 27,413 lượt ghi danh / nhóm  
+- **Số nhóm:** 2 (Thử nghiệm và Đối chứng)  
+- **Tổng số mẫu:** 54,826  
+- **Số lần click / pageview:** 3,200 / 40,000 = 0.08  
+- **Số pageviews cần thiết:** 685,325
+
+Không xét Retention do:
+Yêu cầu tới ~4.7 triệu pageviews để đạt power 80%.
+Tốc độ traffic 40.000 pageviews/ngày → mất 119 ngày chạy.
 ## 4. Kết quả
+### 4.1 Sanity Check (Invariate Metrics)
 
-| Metric            | Mức chênh lệch quan sát | Khoảng tin cậy (95%)        | Kết luận                                 |
-|-------------------|--------------------------|------------------------------|-------------------------------------------|
-| Gross Conversion  | -2.06%                   | [-2.92%, -1.20%]             | Có ý nghĩa thống kê & thực tiễn          |
-| Net Conversion    | -0.49%                   | [-1.16%, 0.19%]              | Không có ý nghĩa thống kê                |
+| Metric  | Giá trị đo được | CI                        | Kết quả |
+|---------|------------------|----------------------------|---------|
+| Cookies | 0.5006           | [0.4988, 0.5012]           | Pass    |
+| Clicks  | 0.5005           | [0.4959, 0.5042]           | Pass    |
+| CTP     | 0.0822           | [0.0812, 0.0830]           | Pass    |
+
+---
+
+### 4.2 Evaluation Metrics
+
+| Metric           | Dmin   | Chênh lệch đo được | CI                         | Kết luận                              |
+|------------------|--------|---------------------|-----------------------------|----------------------------------------|
+| Gross Conversion | 0.01   | -0.0205             | [-0.0291, -0.0120]          | Đáng kể về cả thực lẫn thống kê       |
+| Net Conversion   | 0.0075 | -0.0048             | [-0.0116, 0.0019]           | KHÔNG đáng kể                         |
+
+---
+
+### 4.3 Kiểm Định Sign Test
+
+| Metric           | p-value | Đáng kể về thống kê? |
+|------------------|---------|-----------------------|
+| Gross Conversion | 0.0026  | Có                    |
+| Net Conversion   | 0.6776  | KHÔNG                 |
 
 ## 5. Kết luận & Khuyến nghị
 Mặc dù tỷ lệ ghi danh có giảm đáng kể, nhưng không có bằng chứng cho thấy chất lượng học viên (tỷ lệ trả phí sau 14 ngày) tăng lên. Do đó:
